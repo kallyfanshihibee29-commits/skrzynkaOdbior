@@ -125,7 +125,6 @@
     <div class="footer-actions">
       <button class="btn" id="refreshBtn">Odśwież</button>
       <div style="flex:1"></div>
-      <!-- Usunięto informację o czyszczeniu localStorage zgodnie z życzeniem -->
     </div>
   </div>
 
@@ -133,7 +132,7 @@
     const STORAGE_KEY = 'wiara_inbox_v1';
     const AUTHOR_NAME = 'Kacper Czarnojan';
 
-    // Domyślne ogłoszenia (wstawiane tylko jeśli localStorage jest pusty)
+    // Domyślne ogłoszenia (teraz 3 — w tym nowy wpis z 02.10.2025)
     const initialAnnouncements = [
       {
         id: 'a1',
@@ -150,18 +149,37 @@
         content: 'Specjalny kod QQWE19 — wpisz go w aplikacji „Codzienny Cytat”, aby otrzymać darmowe 30 dni passy. Oferta ograniczona czasowo. Powodzenia i miłego czytania!',
         source: 'Wiara Przenosi Góry',
         read: false
+      },
+      {
+        id: 'a3',
+        date: '2025-10-02',
+        title: 'Bądź Jak Dziecko',
+        content: 'Jest już dostępny nowy wpis na blogu pod tytułem "Bądź Jak Dziecko" — zachęcam do przeczytania i podzielenia się wrażeniami.',
+        source: 'Wiara Przenosi Góry',
+        read: false
       }
     ];
 
-    // Inicjalizuj tylko jeśli nie ma jeszcze wpisu
-    (function initIfEmpty(){
+    // Inicjalizacja: jeśli nie ma wpisu — zapisz wszystkie; jeśli jest, dołącz brakujące ogłoszenia (merge), nie nadpisujemy istniejących statusów
+    (function initMerge(){
       try{
         const raw = localStorage.getItem(STORAGE_KEY);
         if(!raw){
           localStorage.setItem(STORAGE_KEY, JSON.stringify(initialAnnouncements));
+        } else {
+          const arr = JSON.parse(raw);
+          let changed = false;
+          initialAnnouncements.forEach(item => {
+            if(!arr.find(x=>x.id===item.id)){
+              arr.push(item);
+              changed = true;
+            }
+          });
+          if(changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
         }
       }catch(e){
         console.error('Błąd podczas inicjalizacji localStorage', e);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialAnnouncements));
       }
     })();
 
